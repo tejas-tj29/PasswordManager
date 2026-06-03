@@ -38,12 +38,12 @@ function App() {
           <button className="w-1/4 my-4 ml-3 bg-blue-500 rounded-lg text-white">Copy</button>
         </div>
         <div className="flex shadow overflow-hidden">
-          <input type="range" className="mb-2"  value={length} onChange={(e)=>setLength(e.target.value)}/>
+          <input type="range" max = "50" min = "4" className="mb-2"  value={length} onChange={(e)=>setLength(e.target.value)}/>
           <p className="mb-2 ml-2">Length ({length})</p>
-          <input type="checkbox" id="numbers" className="mt-2 ml-3 size-3" />
-          <label htmlFor="numbers" className="ml-2">Numbers</label>
-          <input type="checkbox" id="specialChars" className="mt-2 ml-3 size-3" />
-          <label htmlFor="specialChars" className="ml-2">Characters</label>
+          <input type="checkbox" id="numbers" className="mt-2 ml-2 size-3" />
+          <label htmlFor="numbers" className="ml-1.5">Numbers</label>
+          <input type="checkbox" id="specialChars" className="mt-2 ml-2 size-3" />
+          <label htmlFor="specialChars" className="ml-1.5">Characters</label>
           </div>
       </div>
     </>
