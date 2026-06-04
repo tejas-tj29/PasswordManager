@@ -1,4 +1,4 @@
-import { useState,useCallback } from 'react'
+import { useState,useCallback,useEffect,useRef } from 'react'
 
 function App() {
 
@@ -26,6 +26,18 @@ function App() {
 
   },[includeNumbers,includeSpecialChars,length,setPassword])
 
+  const copyPasswordToClipboard = useCallback(()=>{
+    passwordRef.current?.select(); // It highlights the copied text in the input field
+    passwordRef.current?.setSelectionRange(0,104);// It specifies the range of text to be selected, 
+    window.navigator.clipboard.writeText(password);
+  },[password])
+
+  useEffect(()=>{
+    generatePassword();
+  },[length,includeNumbers,includeSpecialChars,generatePassword]);
+
+  const passwordRef = useRef(null);
+
   return (
     <>
       <div className="w-full max-w-md mx-auto my-8 shadow-md rounded-lg px-4 text-orange-500 bg-gray-700">
@@ -34,16 +46,26 @@ function App() {
           <input id = "password" type="text" value={password}  readOnly
            className="w-full rounded-lg px-3 py-1 my-4 outline-none"
            placeholder="Password"
+           ref={passwordRef}
           />
-          <button className="w-1/4 my-4 ml-3 bg-blue-500 rounded-lg text-white">Copy</button>
+          <button 
+          onClick = {copyPasswordToClipboard}
+          onMouseOver={(e)=>{e.target.style.backgroundColor = "rgb(59 130 246)"}}
+          className="w-1/4 my-4 ml-3 bg-blue-500 rounded-lg shrink-0 text-white">Copy</button>
         </div>
-        <div className="flex shadow overflow-hidden">
+        <div className="flex shadow gap-x-1 overflow-hidden">
           <input type="range" max = "50" min = "4" className="mb-2"  value={length} onChange={(e)=>setLength(e.target.value)}/>
           <p className="mb-2 ml-2">Length ({length})</p>
-          <input type="checkbox" id="numbers" className="mt-2 ml-2 size-3" />
-          <label htmlFor="numbers" className="ml-1.5">Numbers</label>
-          <input type="checkbox" id="specialChars" className="mt-2 ml-2 size-3" />
-          <label htmlFor="specialChars" className="ml-1.5">Characters</label>
+          <input type="checkbox" id="numbers" className="mt-2 size-3" 
+          defaultChecked={includeNumbers}
+          onChange={()=>{setIncludeNumbers((prev)=>!prev)}}
+          />
+          <label htmlFor="numbers">Numbers</label>
+          <input type="checkbox" id="specialChars" className="mt-2 size-3" 
+          defaultChecked={includeSpecialChars}
+          onChange={()=>{setIncludeSpecialChars((prev)=>!prev)}}
+          />
+          <label htmlFor="specialChars">Characters</label>
           </div>
       </div>
     </>
