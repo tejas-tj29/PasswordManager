@@ -86,6 +86,11 @@ function App() {
           onClick = {copyPasswordToClipboard}
           onMouseOver={(e)=>{e.target.style.backgroundColor = "rgb(59 130 246)"}}
           className="w-1/4 my-4 ml-3 bg-blue-500 rounded-lg shrink-0 text-white">Copy</button>
+          <button 
+            onClick={() => handleAutoFill(password)} 
+            className="autofill-btn"
+          > Autofill
+          </button>
         </div>
         <div className="flex shadow gap-x-1 overflow-hidden">
           <input type="range" max = "50" min = "4" className="mb-2"  value={length} onChange={(e)=>setLength(e.target.value)}/>
