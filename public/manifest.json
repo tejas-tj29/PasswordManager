@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "React Password Generator & Filler",
+  "version": "1.0.0",
+  "description": "Generates strong passwords and auto-fills them into fields.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "index.html"
+  }
+}

@@ -7,6 +7,40 @@ function App() {
   const [includeSpecialChars,setIncludeSpecialChars] = useState(false);
   const [password,setPassword] = useState("");// Will hold the generated password
 
+  const handleAutoFill = async(generatedPassword) => {
+    // 1. Check if the code is running inside a browser extension environment
+    if (!window.chrome || !chrome.tabs) {
+      alert("Auto-fill only works when running as a browser extension!");
+      return;
+    }
+
+    // 2. Get the current active browser tab
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  if (!tab) return;
+
+  // 3. Inject a script into that tab to find a password input field and fill it
+  chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    func: (password) => {
+      // Look for standard password inputs on the web page
+      const passwordInput = document.querySelector('input[type="password"]');
+      
+      if (passwordInput) {
+        passwordInput.value = password;
+        // Trigger an input event so the website's form logic detects the change
+        passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
+        alert("Password autofilled successfully!");
+      } else {
+        alert("No password input field found on this page!");
+      }
+    },
+    args: [generatedPassword] // Pass the state variable password into the function
+  });
+};
+ 
+
+
   const generatePassword = useCallback(()=>{
     let pass = "";
     let str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
