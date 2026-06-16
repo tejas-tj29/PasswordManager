@@ -1,4 +1,5 @@
 import { useState,useCallback,useEffect,useRef } from 'react'
+import { analyzePasswordSecurity } from './gemini.js';
 
 function App() {
 
@@ -6,6 +7,11 @@ function App() {
   const [includeNumbers,setIncludeNumbers] = useState(false);
   const [includeSpecialChars,setIncludeSpecialChars] = useState(false);
   const [password,setPassword] = useState("");// Will hold the generated password
+
+  // Step 2: Establish states to manage network interaction updates
+  const [aiReview, setAiReview] = useState("");
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isCooldown, setIsCooldown] = useState(false);
 
   const handleAutoFill = async(generatedPassword) => {
     // 1. Check if the code is running inside a browser extension environment
@@ -38,8 +44,23 @@ function App() {
     args: [generatedPassword] // Pass the state variable password into the function
   });
 };
- 
 
+  // Step 3: Handle the asynchronous AI network lifecycle call
+  const handleAiAudit = async () => {
+    setIsAiLoading(true);
+    setAiReview(""); // Clear container
+    
+    // Pass our active password hook variable directly into the engine function
+    const critique = await analyzePasswordSecurity(password);
+    
+    setAiReview(critique);
+    setIsAiLoading(false);
+
+    setIsCooldown(true);
+  setTimeout(() => {
+    setIsCooldown(false);
+  }, 3000);
+  };
 
   const generatePassword = useCallback(()=>{
     let pass = "";
@@ -53,10 +74,11 @@ function App() {
     }
 
     for(let i=1; i<=length; i++){
-      const idx = Math.floor(Math.random() * str.length +1);
+      const idx = Math.floor(Math.random() * str.length);
       pass += str.charAt(idx);
     }
     setPassword(pass);
+    setAiReview(""); // Reset the AI state container so old critiques don't linger
 
   },[includeNumbers,includeSpecialChars,length,setPassword])
 
@@ -106,6 +128,31 @@ function App() {
           />
           <label htmlFor="specialChars">Characters</label>
           </div>
+          {/* ==================== NEW FEATURE: AI SECURITY SPECIALIST PANEL ==================== */}
+        <div className="mt-2 pt-3 border-t border-gray-600/50">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-xs text-zinc-300 font-medium">Want an advanced AI audit?</p>
+            <button
+              onClick={handleAiAudit}
+              disabled={isAiLoading || isCooldown || !password}
+              className="px-3 py-1.5 text-xs font-bold rounded-md bg-orange-500 hover:bg-orange-400 disabled:bg-gray-600 disabled:opacity-50 text-white transition-colors cursor-pointer"
+            >
+              {isAiLoading ? 'Analyzing Layout...' : isCooldown ? 'Cooling down...' : 'Audit with AI'}
+            </button>
+          </div>
+
+          {/* Conditional layout box container prints out only when data exists */}
+          {aiReview && (
+            <div className="mt-3 p-3 bg-gray-800 rounded-lg border border-orange-500/20 shadow-inner">
+              <p className="text-[10px] text-orange-400 font-mono font-bold tracking-wider uppercase mb-1">
+                🔒 Security Assessment:
+              </p>
+              <p className="text-xs text-zinc-200 leading-relaxed italic">
+                "{aiReview}"
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </>
   )
